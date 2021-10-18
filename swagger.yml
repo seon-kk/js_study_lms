@@ -1,0 +1,618 @@
+openapi: 3.0.0
+info:
+  title: Inflearn Lecture API Assignment
+  description: Inflearn Lecture API Assignment
+  version: 0.1.9
+servers:
+  - url: http://localhost:8080
+    description: localhost
+
+paths:
+  /teacher:
+    get:
+      summary: 강사 목록
+      description: 수강생 (테스트 데이터 확인용, 페이징/검색 없음)
+      tags:
+        - 강사
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+  
+  /category:
+    get:
+      summary: 카테고리 리스트
+      description: 카테고리 리스트 (테스트 데이터 확인용, 페이징/검색 없음)
+      tags:
+        - 카테고리
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+
+  /student:
+    get:
+      summary: 수강생 목록
+      description: 수강생 (테스트 데이터 확인용, 페이징/검색 없음)
+      tags:
+        - 수강생
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    email:
+                      type: string
+                    createdAt:
+                      type: string
+    post:
+      summary: 수강생 가입
+      tags:
+        - 수강생
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+              required:
+                - name
+                - email
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  studentId:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
+        "400":
+          description: 리퀘스트 에러
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                  message:
+                    type: string
+
+  /student/{studentId}:
+    delete:
+      summary: 수강생 삭제
+      description: 수강생 ID로 해당 수강생을 탈퇴시킴
+      tags:
+        - 수강생
+      parameters:
+        - in: path
+          name: studentId
+          schema:
+            type: integer
+          required: true
+      responses:
+        "200":
+          description: 수강생 삭제 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  affectedRows:
+                    type: integer
+                  message:
+                    type: string
+        "404":
+          description: 지정 ID에 해당하는 수강생이 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                  message:
+                    type: string
+
+  /lecture:
+    get:
+      summary: 현재 등록된 강의 목록
+      tags:
+        - 강의
+      parameters:
+        - in: query
+          name: page
+          description: 페이지 번호 (기본 1)
+          schema:
+            type: integer
+          required: false
+        - in: query
+          name: row
+          description: 페이지 당 결과 수 (기본 20)
+          schema:
+            type: integer
+          required: false
+        - in: query
+          name: order
+          description: 정렬 순서 - new(최신순) / count(학생수), 기본 new 
+          schema:
+            type: string
+          required: false
+        - in: query
+          name: teacherName
+          description: 강사명 검색 키워드
+          schema:
+            type: string
+          required: false
+        - in: query
+          name: subject
+          description: 강의명 검색 키워드
+          schema:
+            type: string
+          required: false
+        - in: query
+          name: studentId
+          description: 학생 ID
+          schema:
+            type: integer
+          required: false
+        - in: query
+          name: category
+          description: 검색 카테고리 키워드 (기본 - 전체)
+          schema:
+            type: string
+          required: false
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  row:
+                    type: integer
+                  order:
+                    type: string
+                  category:
+                    type: string
+                  teacherName:
+                    type: string
+                  subject:
+                    type: string
+                  studentId:
+                    type: string
+                  totalCount:
+                    type: integer
+                    example: 페이징하지 않은 전체 결과의 수
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        lectureId:
+                          type: integer
+                          example: 강의 ID
+                        category:
+                          type: string
+                          example: 카테고리
+                        subject:
+                          type: string
+                          example: 강의명
+                        teacherName:
+                          type: string
+                          example: 강사명
+                        price:
+                          type: integer
+                          example: 가격
+                        totalStudent:
+                          type: integer
+                          example: 수강생 수
+                        createdAt:
+                          type: string
+        "400":
+          description: 리퀘스트 에러
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string        
+        "404":
+          description: 조건에 해당하는 강의 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  row:
+                    type: integer
+                  order:
+                    type: string
+                  category:
+                    type: string
+                  teacherName:
+                    type: string
+                  subject:
+                    type: string
+                  studentId:
+                    type: string
+                  message:
+                    type: string
+    post:
+      summary: 새 강의 등록
+      tags:
+        - 강의
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                teacherId:
+                  type: integer
+                  example: 강사 ID
+                categoryId:
+                  type: integer
+                  example: 카테고리 ID
+                subject:
+                  type: string
+                  example: 강의명
+                content:
+                  type: string
+                  example: 강의 소개
+                price:
+                  type: integer
+                  example: 가격
+              required:
+                - teacherId
+                - category
+                - subject
+                - content
+                - price
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "400":
+          description: 리퀘스트 에러
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: 해당 데이터가 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    put:
+      summary: 등록된 강의 수정
+      tags:
+        - 강의
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lectureId:
+                  type: integer
+                subject:
+                  type: string
+                content:
+                  type: string
+                price:
+                  type: integer
+              required:
+                - lectureId
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  affectedRows:
+                    type: integer
+        "400":
+          description: 리퀘스트 에러
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: 해당 데이터가 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /lecture/{lectureId}:
+    get:
+      summary: 강의 ID로 강의 상세 조회
+      tags:
+        - 강의
+      parameters:
+        - in: path
+          name: lectureId
+          description: 강의 ID
+          schema:
+            type: integer
+          required: true
+      responses:
+        "200":
+          description: 상세조회 결과
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lectureId:
+                    type: integer
+                    example: 강의 ID
+                  category:
+                    type: string
+                    example: 카테고리
+                  subject:
+                    type: string
+                    example: 강의명
+                  content:
+                    type: string
+                    example: 강의 소개
+                  price:
+                    type: integer
+                    example: 가격
+                  totalStudent:
+                    type: integer
+                    example: 총 학생수
+                  createdAt:
+                    type: string
+                    example: 총 학생수
+                  modifiedAt:
+                    type: string
+                  studentList:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        studentId:
+                          type: integer
+                          example: 학생 ID
+                        studentName:
+                          type: string
+                          example: 학생 이름
+                        enrolledAt:
+                          type: string
+                          example: 수강신청일자
+        "400":
+          description: 리퀘스트 에러
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string       
+        "404":
+          description: 해당하는 강의 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    delete:
+      summary: 강의 삭제
+      description: 강의 ID로 해당 강의를 삭제함
+      tags:
+        - 강의
+      parameters:
+        - in: path
+          name: lectureId
+          schema:
+            type: integer
+          required: true
+      responses:
+        "200":
+          description: 강의 삭제 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  affectedRows:
+                    type: integer
+        "400":
+          description: 리퀘스트 에러
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: 해당하는 강의가 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /lecture/visible/{lectureId}:
+    put:
+      summary: 강의 ID로 해당 강의를 공개 상태로 전환
+      tags:
+        - 강의
+      parameters:
+        - in: path
+          name: lectureId
+          description: 강의 ID
+          schema:
+            type: integer
+          required: true
+      responses:
+        "200":
+          description: 상태 전환 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  changedRows:
+                    type: number
+        "400":
+          description: 리퀘스트 에러
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: 해당하는 강의가 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+
+  /enrollment:
+    post:
+      summary: 강의 수강 신청
+      tags:
+        - 수강 신청
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  studentId:
+                    type: integer
+                    example: 수강생 ID
+                  lectureId:
+                    type: integer
+                    example: 강의 id
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: number
+        "400":
+          description: 리퀘스트 에러
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  validation:
+                    type: string
+                  noStudent:
+                    type: array
+                    items:
+                      type: integer
+                      example: '존재하지 않는 학생 id'
+                  noLecture:
+                    type: array
+                    items:
+                      type: integer
+                      example: '존재하지 않는 강의 id'
+                  invisibleLecture:
+                    type: array
+                    items:
+                      type: integer
+                      example: '비공개 강의 id'
+                  enrolled:
+                    type: array
+                    items:
+                      type: array
+                      items: 
+                        type: integer
+                        example: '이미 등록된 수강생 id, 강의 id'
+
+
+
+
